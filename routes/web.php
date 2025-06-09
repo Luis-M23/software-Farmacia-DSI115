@@ -15,5 +15,14 @@ Route::get('/fancy-login', function () {
     return Inertia::render('auth/FancyLogin');
 });
 
+Route::get('/productos/crear', function () {
+    return Inertia::render('Products/Create');
+});
+
+Route::get('/productos', function () {
+    return Inertia::render('Products/Index');
+});
+
+
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
