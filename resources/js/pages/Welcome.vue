@@ -1,51 +1,58 @@
-<script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3';
-</script>
-
 <template>
-    <Head title="Farmacia La Esperanza">
-        <link rel="preconnect" href="https://rsms.me/" />
-        <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
-    </Head>
-    <div class="flex min-h-screen flex-col items-center bg-[#FDFDFC] p-6 text-[#1b1b18] dark:bg-[#0a0a0a] lg:justify-center lg:p-8">
-        <header class="not-has-[nav]:hidden mb-6 w-full max-w-[335px] text-sm lg:max-w-4xl">
-            <nav class="flex items-center justify-end gap-4">
-                <Link
-                    v-if="$page.props.auth.user"
-                    :href="route('dashboard')"
-                    class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
-                >
-                    Dashboard
-                </Link>
-                <template v-else>
-                    <Link
-                        :href="route('login')"
-                        class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#19140035] dark:text-[#EDEDEC] dark:hover:border-[#3E3E3A]"
-                    >
-                        Log in
-                    </Link>
-                    <Link
-                        :href="route('register')"
-                        class="inline-block rounded-sm border border-[#19140035] px-5 py-1.5 text-sm leading-normal text-[#1b1b18] hover:border-[#1915014a] dark:border-[#3E3E3A] dark:text-[#EDEDEC] dark:hover:border-[#62605b]"
-                    >
-                        Register
-                    </Link>
-                </template>
-            </nav>
-        </header>
-        <div class="duration-750 starting:opacity-0 flex w-full items-center justify-center opacity-100 transition-opacity lg:grow">
-            <main class="flex w-full max-w-[335px] flex-col-reverse overflow-hidden rounded-lg lg:max-w-4xl lg:flex-row">
-                <div
-                    class="flex-1 rounded-bl-lg rounded-br-lg bg-white p-6 pb-12 text-[13px] leading-[20px] shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] dark:bg-[#161615] dark:text-[#EDEDEC] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d] lg:rounded-br-none lg:rounded-tl-lg lg:p-20"
-                >
-                    <h1 class="mb-1 font-medium">LEn Farmacia La Esperanza, trabajamos cada día para cuidar tu salud con calidad, calidez y compromiso.</h1>
-                </div>
-                 <div class="flex-1 flex items-center justify-center bg-[#F4F4F4] p-6 lg:p-20">
-                    <img src="/img/logo-farmacia.png" alt="Logo Farmacia La Esperanza" class="max-w-full h-auto object-contain" />
-                </div>
+  <div class="min-h-screen flex flex-col bg-gradient-to-b from-green-50 to-green-100">
 
-            </main>
+    <!-- Header -->
+    <header class="flex items-center justify-between p-6 bg-white shadow">
+      <div class="flex items-center space-x-2">
+        <img src="img/logo-farmacia.png" alt="Farmacias La Esperanza" class="h-12 w-auto" />
+        <span class="font-bold text-xl text-green-700">Farmacias La Esperanza</span>
+      </div>
+      <div class="space-x-4">
+        <a href="/login" class="text-green-600 hover:text-green-700 font-medium">Iniciar Sesión</a>
+        <a href="/register" class="text-green-600 hover:text-green-700 font-medium">Registrarse</a>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <main class="flex flex-col items-center justify-center flex-grow text-center px-6 py-12">
+      <img src="img/logo-farmacia.png" alt="Farmacias La Esperanza" class="h-32 mb-6" />
+      <h1 class="text-4xl font-bold text-gray-800 mb-4">Bienvenido a Farmacias La Esperanza</h1>
+      <p class="text-lg text-gray-600 max-w-xl mb-6">
+        Trabajamos cada día para cuidar tu salud con calidad, calidez y compromiso.
+      </p>
+      <a
+        href="/login"
+        class="inline-block px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded text-lg"
+      >
+        Iniciar Sesión
+      </a>
+    </main>
+
+    <!-- Valores / Features -->
+    <section class="bg-white py-8">
+      <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+        <div>
+          <div class="text-green-600 text-4xl mb-2">💊</div>
+          <h3 class="font-bold text-lg mb-1">Productos de Calidad</h3>
+          <p class="text-gray-600 text-sm">Medicamentos certificados y garantizados.</p>
         </div>
-        <div class="h-14.5 hidden lg:block"></div>
-    </div>
+        <div>
+          <div class="text-green-600 text-4xl mb-2">⏱️</div>
+          <h3 class="font-bold text-lg mb-1">Atención 24/7</h3>
+          <p class="text-gray-600 text-sm">Siempre disponibles para tu salud.</p>
+        </div>
+        <div>
+          <div class="text-green-600 text-4xl mb-2">❤️</div>
+          <h3 class="font-bold text-lg mb-1">Confianza y Compromiso</h3>
+          <p class="text-gray-600 text-sm">Más de 10 años cuidando a las familias.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-100 text-center text-sm text-gray-500 py-4">
+      Farmacias La Esperanza © 2025. Todos los derechos reservados.
+    </footer>
+
+  </div>
 </template>

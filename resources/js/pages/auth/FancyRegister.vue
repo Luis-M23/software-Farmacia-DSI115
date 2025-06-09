@@ -2,11 +2,11 @@
   <div class="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center p-4">
     <div class="w-full max-w-md shadow-xl border-0 bg-white p-8 rounded">
       <div class="flex justify-center mb-6">
-        <img src="img/logo-farmacia.png" alt="Farmacias La Esperanza" width="200" height="120" class="object-contain" />
+        <img src="/logo-farmacia.png" alt="Farmacias La Esperanza" width="200" height="120" class="object-contain" />
       </div>
 
       <h2 class="text-2xl font-bold text-gray-800 text-center mb-2">Crear Cuenta</h2>
-      <p class="text-gray-600 text-center mb-6">Únete a Farmacias La Esperanza y disfruta de beneficios exclusivos</p>
+      <p class="text-gray-600 text-center mb-6">Ingrese sus datos para crear la cuenta</p>
 
       <!-- Mostrar error -->
       <div v-if="error" class="mb-4 text-red-600 font-medium text-sm text-center">
