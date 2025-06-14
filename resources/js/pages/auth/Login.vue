@@ -100,7 +100,7 @@ const handleSubmit = async () => {
     })
 
     console.log('Login OK', response)
-    window.location.href = '/dashboard'
+    window.location.href = '/productos'
   } catch (err) {
     console.error('Login ERROR', err)
     if (err.response && err.response.status === 422) {

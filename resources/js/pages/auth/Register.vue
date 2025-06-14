@@ -122,7 +122,7 @@ const handleSubmit = async () => {
     })
 
     console.log('Register OK', response)
-    window.location.href = '/dashboard'
+    window.location.href = '/productos'
   } catch (err) {
     console.error('Register ERROR', err)
     if (err.response && err.response.status === 422) {
