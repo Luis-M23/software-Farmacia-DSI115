@@ -19,28 +19,29 @@
       <Card>
         <CardContent class="p-4">
           <div class="text-sm text-gray-500 mb-1">Total Productos</div>
-          <div class="text-2xl font-bold text-green-700">1</div>
+          <div class="text-2xl font-bold text-green-700">{{ productos.length }}</div>
         </CardContent>
       </Card>
 
+      <!-- Puedes ajustar estos datos o calcularlos dinámicamente -->
       <Card>
         <CardContent class="p-4">
           <div class="text-sm text-gray-500 mb-1">Stock Bajo</div>
-          <div class="text-2xl font-bold text-red-600">0</div>
+          <div class="text-2xl font-bold text-red-600">{{ totalStockBajo }}</div>
         </CardContent>
       </Card>
 
       <Card>
         <CardContent class="p-4">
           <div class="text-sm text-gray-500 mb-1">Por Vencer</div>
-          <div class="text-2xl font-bold text-orange-500">1</div>
+          <div class="text-2xl font-bold text-orange-500">{{ totalPorVencer }}</div>
         </CardContent>
       </Card>
 
       <Card>
         <CardContent class="p-4">
           <div class="text-sm text-gray-500 mb-1">Categorías</div>
-          <div class="text-2xl font-bold text-green-700">1</div>
+          <div class="text-2xl font-bold text-green-700">{{ categoriasUnicas.length }}</div>
         </CardContent>
       </Card>
     </div>
@@ -55,10 +56,22 @@
       </select>
     </div>
 
+    <!-- Mostrar error -->
+    <div v-if="error" class="text-red-600 mb-4">{{ error }}</div>
+
+    <!-- Mostrar loading -->
+    <div v-if="loading" class="mb-4">Cargando productos...</div>
+
     <!-- Listado de productos -->
-    <div class="space-y-4">
-      <ProductCard />
+    <div class="space-y-4" v-if="productos.length > 0">
+      <ProductCard
+        v-for="producto in productosFiltrados"
+        :key="producto.id"
+        :producto="producto"
+      />
     </div>
+
+    <div v-else-if="!loading" class="text-gray-600">No hay productos para mostrar.</div>
 
     <!-- Modal -->
     <ProductModal :show="showModal" @close="showModal = false" />
@@ -66,7 +79,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -76,4 +89,57 @@ import ProductModal from '@/Components/ProductModal.vue'
 const showModal = ref(false)
 const searchQuery = ref('')
 const selectedCategory = ref('')
+
+const productos = ref([])
+const loading = ref(false)
+const error = ref(null)
+
+async function cargarProductos() {
+  loading.value = true
+  error.value = null
+  try {
+    const res = await fetch('/api/productos')
+    if (!res.ok) throw new Error('Error al cargar productos')
+    productos.value = await res.json()
+  } catch (e) {
+    error.value = e.message
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  cargarProductos()
+})
+
+const productosFiltrados = computed(() => {
+  return productos.value.filter(p => {
+    const matchNombre = p.nombre.toLowerCase().includes(searchQuery.value.toLowerCase())
+    const matchCategoria = selectedCategory.value === '' || p.categoria === selectedCategory.value
+    return matchNombre && matchCategoria
+  })
+})
+
+// ✔ Contar productos con bajo stock (menos de 5 unidades)
+const totalStockBajo = computed(() => {
+  return productos.value.filter(p => p.existencia_inicial !== null && p.existencia_inicial < 5).length
+})
+
+// ✔ Contar productos que vencen en los próximos 7 días
+const totalPorVencer = computed(() => {
+  const hoy = new Date()
+  const en7Dias = new Date()
+  en7Dias.setDate(hoy.getDate() + 7)
+  return productos.value.filter(p => {
+    if (!p.fecha_vencimiento) return false
+    const fecha = new Date(p.fecha_vencimiento)
+    return fecha >= hoy && fecha <= en7Dias
+  }).length
+})
+
+// ✔ Categorías únicas
+const categoriasUnicas = computed(() => {
+  const set = new Set(productos.value.map(p => p.categoria).filter(Boolean))
+  return [...set]
+})
 </script>

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProductoController;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -15,14 +16,19 @@ Route::get('/fancy-login', function () {
     return Inertia::render('auth/FancyLogin');
 });
 
-Route::get('/productos/crear', function () {
-    return Inertia::render('Products/Create');
-});
-
+// VISTA DE PRODUCTOS
 Route::get('/productos', function () {
     return Inertia::render('Products/Index');
-});
+})->middleware(['auth', 'verified'])->name('productos.vista');
 
+// API PARA OBTENER LOS PRODUCTOS (solo datos)
+Route::get('/api/productos', [ProductoController::class, 'index'])->name('productos.api');
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+// RUTA PARA FORMULARIO DE CREACIÓN
+Route::get('/productos/create', [ProductoController::class, 'create'])->name('productos.create');
+
+// POST para guardar productos
+Route::post('/productos', [ProductoController::class, 'store'])->name('productos.store');
+
+require _DIR_.'/settings.php';
+require _DIR_.'/auth.php';
