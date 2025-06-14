@@ -4,7 +4,7 @@
     <div class="flex-shrink-0">
       <div class="h-16 w-16 bg-gray-100 rounded flex items-center justify-center text-gray-400 text-3xl">
         <template v-if="producto.imagen">
-          <img :src="/storage/${producto.imagen}" alt="Producto" class="h-16 w-16 object-cover rounded" />
+          <img :src="`/storage/${producto.imagen}`" alt="Producto" class="h-16 w-16 object-cover rounded" />
         </template>
         <template v-else>
           📦
@@ -46,10 +46,10 @@
     <!-- Botones acciones -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-end gap-2 mt-4 md:mt-0">
       <Button variant="outline" class="flex items-center space-x-1">
-        ✏ <span>Editar</span>
+        ✏️ <span>Editar</span>
       </Button>
       <Button variant="destructive" class="flex items-center space-x-1">
-        🗑 <span>Eliminar</span>
+        🗑️ <span>Eliminar</span>
       </Button>
     </div>
   </Card>
@@ -89,7 +89,7 @@ const precioVentaFormateado = computed(() => {
 const vencimientoTexto = computed(() => {
   if (!props.producto.fecha_vencimiento) return 'Sin fecha'
   const fecha = new Date(props.producto.fecha_vencimiento)
-  return ⚠ ${fecha.toLocaleDateString('es-SV')}
+  return `⚠️ ${fecha.toLocaleDateString('es-SV')}`
 })
 
 // Color según vencimiento
