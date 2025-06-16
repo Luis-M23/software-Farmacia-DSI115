@@ -6,6 +6,9 @@ use App\Models\Producto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use App\Models\Categoria;
+use Carbon\Carbon;
+
 
 class ProductoController extends Controller
 {
@@ -18,7 +21,6 @@ class ProductoController extends Controller
     {
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
-            'categoria' => 'required|string|max:255',
             'presentacion' => 'required|string|max:255',
             'proveedor' => 'required|string|max:255',
             'precio_compra' => 'required|numeric',
@@ -26,6 +28,7 @@ class ProductoController extends Controller
             'existencia_inicial' => 'required|integer',
             'fecha_vencimiento' => 'nullable|date',
             'imagen' => 'nullable|image|max:5120', // 5MB
+            'categoria_id' => 'required|exists:categorias,id',
         ]);
 
         if ($request->hasFile('imagen')) {
@@ -35,15 +38,44 @@ class ProductoController extends Controller
 
         Producto::create($validated);
 
-        return back();
+        return response()->json([
+    'success' => true,
+    'producto' => Producto::with('categoria')->latest()->first()
+]);
 
     }
 
    public function index()
     {
-        $productos = \App\Models\Producto::latest()->get();
-        return response()->json($productos);
+        $productos = Producto::with('categoria')->latest()->get();
+        $categorias = Categoria::all();
+
+        // 🔶 Lógica para calcular productos por vencer (30 días)
+        $hoy = Carbon::now();
+        $porVencer = $productos->filter(function ($producto) use ($hoy) {
+            return $producto->fecha_vencimiento &&
+                   Carbon::parse($producto->fecha_vencimiento)->isBetween($hoy, $hoy->copy()->addDays(30));
+        })->count();
+
+        return Inertia::render('Products/Index', [
+            'productos'   => $productos,
+            'categorias'  => $categorias,
+            'por_vencer'  => $porVencer, // ✅ Nueva prop para el frontend
+        ]);
     }
 
+    public function obtenerDatos()
+{
+    $productos = Producto::with('categoria')->latest()->get();
+    return response()->json($productos);
+}
+
+
+   public function destroy($id)
+{
+    Producto::findOrFail($id)->delete();
+
+    return redirect()->back();
+}
 
 }

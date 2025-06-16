@@ -38,7 +38,7 @@
 
       <!-- Chips de categorías -->
       <div class="flex flex-wrap gap-2 mt-3">
-        <span class="bg-gray-100 text-gray-700 text-xs font-medium px-2 py-1 rounded">{{ producto.categoria || 'Sin categoría' }}</span>
+        <span class="bg-gray-100 text-gray-700 text-xs font-medium px-2 py-1 rounded">{{ producto.categoria?.nombre || 'Sin categoría' }}</span>
         <span class="bg-gray-100 text-gray-700 text-xs font-medium px-2 py-1 rounded">{{ producto.presentacion || 'Sin presentación' }}</span>
       </div>
     </div>
@@ -48,7 +48,10 @@
       <Button variant="outline" class="flex items-center space-x-1">
         ✏️ <span>Editar</span>
       </Button>
-      <Button variant="destructive" class="flex items-center space-x-1">
+      <Button
+        variant="destructive"
+        class="flex items-center space-x-1"
+        @click="$emit('eliminar', producto.id)">
         🗑️ <span>Eliminar</span>
       </Button>
     </div>
@@ -62,6 +65,8 @@
 import { computed } from 'vue'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+
+const emit = defineEmits(['eliminar'])
 
 const props = defineProps({
   producto: {

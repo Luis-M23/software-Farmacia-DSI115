@@ -35,7 +35,13 @@
           <!-- Categoría -->
           <div>
             <Label for="categoria">Categoría *</Label>
-            <Input id="categoria" v-model="form.categoria" placeholder="Ej: Analgésico" required />
+            <select v-model="form.categoria_id" id="categoria" required class="w-full border rounded h-10 px-3">
+            <option value="">Seleccione una categoría</option>
+            <option v-for="cat in categorias" :key="cat.id" :value="cat.id">
+            {{ cat.nombre }}
+          </option>
+          </select>
+
             <div v-if="form.errors.categoria" class="text-red-500 text-sm">{{ form.errors.categoria }}</div>
           </div>
 
@@ -129,17 +135,20 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { defineProps, defineEmits } from 'vue'
+import axios from 'axios'
+
+const emit = defineEmits(['close', 'producto-agregado'])
 
 const props = defineProps({
-  show: { type: Boolean, required: true }
+  show: { type: Boolean, required: true },
+  categorias: { type: Array, required: true }
 })
 
-const emit = defineEmits(['close'])
 const fileInput = ref(null)
 
 const form = useForm({
   nombre: '',
-  categoria: '',
+  categoria_id: '',
   presentacion: '',
   proveedor: '',
   precio_compra: '',
@@ -166,18 +175,31 @@ const handleDrop = (e) => {
   }
 }
 
-const handleSubmit = () => {
-  form.post('/productos', {
-    forceFormData: true,
-    onSuccess: () => {
-      closeModal()  // Esta función hace reset y emite 'close'
-      cargarProductos()
-    },
-    onError: (errors) => {
-      console.error('Errores:', errors)
+const handleSubmit = async () => {
+  const formData = new FormData()
+  Object.entries(form.data()).forEach(([key, value]) => {
+    if (value !== null && value !== undefined) {
+      formData.append(key, value)
     }
   })
+  if (form.imagen) {
+    formData.append('imagen', form.imagen)
+  }
+
+  try {
+    const res = await axios.post('/productos', formData)
+    const producto = res.data.producto
+    emit('producto-agregado', producto)
+    closeModal()
+  } catch (error) {
+    if (error.response?.data?.errors) {
+      form.setError(error.response.data.errors)
+    } else {
+      console.error('Error inesperado:', error)
+    }
+  }
 }
+
 
 // Cargar productos desde API
 async function cargarProductos() {

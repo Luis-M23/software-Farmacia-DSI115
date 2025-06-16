@@ -17,18 +17,26 @@ Route::get('/fancy-login', function () {
 });
 
 // VISTA DE PRODUCTOS
-Route::get('/productos', function () {
-    return Inertia::render('Products/Index');
-})->middleware(['auth', 'verified'])->name('productos.vista');
+//Route::get('/productos', function () {
+   // return Inertia::render('Products/Index');
+//})->middleware(['auth', 'verified'])->name('productos.vista');
+
+Route::get('/productos', [ProductoController::class, 'index'])->middleware(['auth', 'verified'])->name('productos.vista');
+
 
 // API PARA OBTENER LOS PRODUCTOS (solo datos)
-Route::get('/api/productos', [ProductoController::class, 'index'])->name('productos.api');
+//Route::get('/api/productos', [ProductoController::class, 'index'])->name('productos.api');
+Route::get('/api/productos', [ProductoController::class, 'obtenerDatos'])->name('productos.api');
+
 
 // RUTA PARA FORMULARIO DE CREACIÓN
 Route::get('/productos/create', [ProductoController::class, 'create'])->name('productos.create');
 
 // POST para guardar productos
 Route::post('/productos', [ProductoController::class, 'store'])->name('productos.store');
+
+Route::delete('/productos/{id}', [ProductoController::class, 'destroy']);
+
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
