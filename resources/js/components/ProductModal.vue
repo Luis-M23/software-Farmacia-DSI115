@@ -130,11 +130,12 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { defineProps, defineEmits } from 'vue'
 
+const emit = defineEmits(['close', 'producto-agregado'])
+
 const props = defineProps({
   show: { type: Boolean, required: true }
 })
 
-const emit = defineEmits(['close'])
 const fileInput = ref(null)
 
 const form = useForm({
@@ -169,10 +170,18 @@ const handleDrop = (e) => {
 const handleSubmit = () => {
   form.post('/productos', {
     forceFormData: true,
-    onSuccess: () => {
-      closeModal()  // Esta función hace reset y emite 'close'
-      cargarProductos()
-    },
+    onSuccess: (page) => {
+  // Si tu backend redirige con back(), no se obtiene producto creado
+  // Necesitamos reconsultar el producto recién creado
+  fetch('/api/productos')
+    .then(res => res.json())
+    .then(data => {
+      const ultimoProducto = data[0]; // El primero porque usas latest()
+      emit('producto-agregado', ultimoProducto)
+    })
+
+  closeModal()
+},
     onError: (errors) => {
       console.error('Errores:', errors)
     }

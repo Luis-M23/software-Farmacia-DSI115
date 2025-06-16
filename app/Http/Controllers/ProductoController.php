@@ -45,5 +45,14 @@ class ProductoController extends Controller
         return response()->json($productos);
     }
 
+   public function destroy($id)
+{
+    Producto::findOrFail($id)->delete();
+
+    return redirect()->back(); // ✅ Esto sí lo espera Inertia
+}
+
+
+
 
 }

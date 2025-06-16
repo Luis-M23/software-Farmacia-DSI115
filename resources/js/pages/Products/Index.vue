@@ -68,13 +68,14 @@
         v-for="producto in productosFiltrados"
         :key="producto.id"
         :producto="producto"
+        @eliminar="eliminarProducto"
       />
     </div>
 
     <div v-else-if="!loading" class="text-gray-600">No hay productos para mostrar.</div>
 
     <!-- Modal -->
-    <ProductModal :show="showModal" @close="showModal = false" />
+    <ProductModal :show="showModal" @close="showModal = false" @producto-agregado="agregarProducto"/>
   </div>
 </template>
 
@@ -85,6 +86,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import ProductCard from '@/Components/ProductCard.vue'
 import ProductModal from '@/Components/ProductModal.vue'
+import { router } from '@inertiajs/vue3'
+import Swal from 'sweetalert2'
+
+
 
 const showModal = ref(false)
 const searchQuery = ref('')
@@ -136,6 +141,38 @@ const totalPorVencer = computed(() => {
     return fecha >= hoy && fecha <= en7Dias
   }).length
 })
+
+const eliminarProducto = (id) => {
+  Swal.fire({
+    title: '¿Estás seguro?',
+    text: 'Esta acción no se puede deshacer',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      router.delete(`/productos/${id}`, {
+        onSuccess: () => {
+          productos.value = productos.value.filter(p => p.id !== id)
+          Swal.fire('Eliminado', 'El producto fue eliminado.', 'success')
+        },
+        onError: () => {
+          Swal.fire('Error', 'No se pudo eliminar.', 'error')
+        }
+      })
+    }
+  })
+}
+
+const agregarProducto = (nuevoProducto) => {
+  productos.value.unshift(nuevoProducto)
+}
+
+
+
 
 // ✔ Categorías únicas
 const categoriasUnicas = computed(() => {

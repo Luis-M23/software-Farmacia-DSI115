@@ -30,5 +30,8 @@ Route::get('/productos/create', [ProductoController::class, 'create'])->name('pr
 // POST para guardar productos
 Route::post('/productos', [ProductoController::class, 'store'])->name('productos.store');
 
+Route::delete('/productos/{id}', [ProductoController::class, 'destroy']);
+
+
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
