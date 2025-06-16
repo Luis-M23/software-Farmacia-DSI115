@@ -14,19 +14,25 @@ const mainNavItems: NavItem[] = [
         href: '/dashboard',
         icon: LayoutGrid,
     },
+        {
+        title: 'Productos',
+        href: 'http://127.0.0.1:8000/productos',
+        icon: LayoutGrid,
+    },
 ];
 
 const footerNavItems: NavItem[] = [
-    {
-        title: 'Github Repo',
-        href: 'https://github.com/laravel/vue-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#vue',
-        icon: BookOpen,
-    },
+// {
+//     title: 'Github Repo',
+//     href: 'https://github.com/laravel/vue-starter-kit',
+//     icon: Folder,
+// },
+// {
+//     title: 'Documentation',
+//     href: 'https://laravel.com/docs/starter-kits#vue',
+//     icon: BookOpen,
+// },
+
 ];
 </script>
 
