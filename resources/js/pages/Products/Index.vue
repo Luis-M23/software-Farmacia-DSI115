@@ -34,7 +34,7 @@
       <Card>
         <CardContent class="p-4">
           <div class="text-sm text-gray-500 mb-1">Por Vencer</div>
-          <div class="text-2xl font-bold text-orange-500">{{ totalPorVencer }}</div>
+          <div class="text-2xl font-bold text-orange-500">{{ porVencer }}</div>
         </CardContent>
       </Card>
 
@@ -49,10 +49,11 @@
     <!-- Buscador + Filtro -->
     <div class="flex flex-col md:flex-row items-center mb-6 space-y-4 md:space-y-0 md:space-x-4">
       <Input v-model="searchQuery" placeholder="Buscar productos..." class="w-full md:w-1/2" />
-      <select v-model="selectedCategory" class="w-full md:w-1/4 h-12 border border-gray-300 rounded px-3 text-gray-700">
+      <select v-model="selectedCategory" class="...">
         <option value="">Todas las categorías</option>
-        <option value="Cuidado Personal">Cuidado Personal</option>
-        <option value="Otros">Otros</option>
+        <option v-for="cat in categorias" :key="cat.id" :value="cat.nombre">
+          {{ cat.nombre }}
+        </option>
       </select>
     </div>
 
@@ -64,18 +65,14 @@
 
     <!-- Listado de productos -->
     <div class="space-y-4" v-if="productos.length > 0">
-      <ProductCard
-        v-for="producto in productosFiltrados"
-        :key="producto.id"
-        :producto="producto"
-        @eliminar="eliminarProducto"
-      />
+      <ProductCard v-for="producto in productosFiltrados" :key="producto.id" :producto="producto"
+        @eliminar="eliminarProducto" />
     </div>
 
     <div v-else-if="!loading" class="text-gray-600">No hay productos para mostrar.</div>
 
     <!-- Modal -->
-    <ProductModal :show="showModal" @close="showModal = false" @producto-agregado="agregarProducto"/>
+   <ProductModal :show="showModal" @close="showModal = false" @producto-agregado="agregarProducto" :categorias="categorias" />
   </div>
 </template>
 
@@ -88,14 +85,16 @@ import ProductCard from '@/Components/ProductCard.vue'
 import ProductModal from '@/Components/ProductModal.vue'
 import { router } from '@inertiajs/vue3'
 import Swal from 'sweetalert2'
+import { usePage } from '@inertiajs/vue3'
 
 
-
+const page = usePage()
 const showModal = ref(false)
 const searchQuery = ref('')
 const selectedCategory = ref('')
 
-const productos = ref([])
+
+
 const loading = ref(false)
 const error = ref(null)
 
@@ -117,30 +116,34 @@ onMounted(() => {
   cargarProductos()
 })
 
+const productos = ref((page.props?.value?.productos ?? []))
+const categorias = ref(page.props.categorias || [])
+
 const productosFiltrados = computed(() => {
   return productos.value.filter(p => {
     const matchNombre = p.nombre.toLowerCase().includes(searchQuery.value.toLowerCase())
-    const matchCategoria = selectedCategory.value === '' || p.categoria === selectedCategory.value
+    const matchCategoria = selectedCategory.value === '' || p.categoria?.nombre === selectedCategory.value
     return matchNombre && matchCategoria
   })
 })
+
+const porVencer = ref(page.props?.por_vencer ?? 0)
+
+const actualizarContadores = async () => {
+  const res = await fetch('/api/productos')
+  if (res.ok) {
+    const data = await res.json()
+    productos.value = data
+
+  }
+}
 
 // ✔ Contar productos con bajo stock (menos de 5 unidades)
 const totalStockBajo = computed(() => {
   return productos.value.filter(p => p.existencia_inicial !== null && p.existencia_inicial < 5).length
 })
 
-// ✔ Contar productos que vencen en los próximos 7 días
-const totalPorVencer = computed(() => {
-  const hoy = new Date()
-  const en7Dias = new Date()
-  en7Dias.setDate(hoy.getDate() + 7)
-  return productos.value.filter(p => {
-    if (!p.fecha_vencimiento) return false
-    const fecha = new Date(p.fecha_vencimiento)
-    return fecha >= hoy && fecha <= en7Dias
-  }).length
-})
+
 
 const eliminarProducto = (id) => {
   Swal.fire({
@@ -158,6 +161,7 @@ const eliminarProducto = (id) => {
         onSuccess: () => {
           productos.value = productos.value.filter(p => p.id !== id)
           Swal.fire('Eliminado', 'El producto fue eliminado.', 'success')
+          actualizarContadores()
         },
         onError: () => {
           Swal.fire('Error', 'No se pudo eliminar.', 'error')
@@ -169,8 +173,8 @@ const eliminarProducto = (id) => {
 
 const agregarProducto = (nuevoProducto) => {
   productos.value.unshift(nuevoProducto)
+  actualizarContadores()
 }
-
 
 
 

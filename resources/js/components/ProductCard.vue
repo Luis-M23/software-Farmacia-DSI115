@@ -38,7 +38,7 @@
 
       <!-- Chips de categorías -->
       <div class="flex flex-wrap gap-2 mt-3">
-        <span class="bg-gray-100 text-gray-700 text-xs font-medium px-2 py-1 rounded">{{ producto.categoria || 'Sin categoría' }}</span>
+        <span class="bg-gray-100 text-gray-700 text-xs font-medium px-2 py-1 rounded">{{ producto.categoria?.nombre || 'Sin categoría' }}</span>
         <span class="bg-gray-100 text-gray-700 text-xs font-medium px-2 py-1 rounded">{{ producto.presentacion || 'Sin presentación' }}</span>
       </div>
     </div>
