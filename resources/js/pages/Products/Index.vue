@@ -3,6 +3,9 @@
     <!-- Header -->
     <div class="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded shadow mb-6">
       <div class="flex items-center space-x-4 mb-4 md:mb-0">
+      <Button @click="irADashboard" class="bg-gray-300 hover:bg-gray-400 text-gray-800 ml-2">
+      ←
+      </Button>
         <img src="img/logo-farmacia.png" alt="Farmacias La Esperanza" class="h-16 w-auto" />
         <div>
           <h1 class="text-2xl font-bold text-gray-800">Gestión de Productos</h1>
@@ -176,7 +179,9 @@ const agregarProducto = (nuevoProducto) => {
   actualizarContadores()
 }
 
-
+const irADashboard = () => {
+  router.visit('/dashboard') // Ajusta esta ruta si tu dashboard tiene otro path
+}
 
 // ✔ Categorías únicas
 const categoriasUnicas = computed(() => {
