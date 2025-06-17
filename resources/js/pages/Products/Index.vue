@@ -3,16 +3,16 @@
     <!-- Header -->
     <div class="flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded shadow mb-6">
       <div class="flex items-center space-x-4 mb-4 md:mb-0">
-      <Button @click="irADashboard" class="bg-gray-300 hover:bg-gray-400 text-gray-800 ml-2">
-      ←
-      </Button>
+        <Button @click="irADashboard" class="bg-gray-300 hover:bg-gray-400 text-gray-800 ml-2">
+          ←
+        </Button>
         <img src="img/logo-farmacia.png" alt="Farmacias La Esperanza" class="h-16 w-auto" />
         <div>
           <h1 class="text-2xl font-bold text-gray-800">Gestión de Productos</h1>
           <p class="text-gray-600">Administra el inventario de la farmacia</p>
         </div>
       </div>
-      <Button @click="showModal = true" class="bg-green-600 hover:bg-green-700 text-white">
+      <Button @click="abrirModalAgregar" class="bg-green-600 hover:bg-green-700 text-white">
         + Agregar Producto
       </Button>
     </div>
@@ -25,22 +25,18 @@
           <div class="text-2xl font-bold text-green-700">{{ productos.length }}</div>
         </CardContent>
       </Card>
-
-      <!-- Puedes ajustar estos datos o calcularlos dinámicamente -->
       <Card>
         <CardContent class="p-4">
           <div class="text-sm text-gray-500 mb-1">Stock Bajo</div>
           <div class="text-2xl font-bold text-red-600">{{ totalStockBajo }}</div>
         </CardContent>
       </Card>
-
       <Card>
         <CardContent class="p-4">
           <div class="text-sm text-gray-500 mb-1">Por Vencer</div>
           <div class="text-2xl font-bold text-orange-500">{{ porVencer }}</div>
         </CardContent>
       </Card>
-
       <Card>
         <CardContent class="p-4">
           <div class="text-sm text-gray-500 mb-1">Categorías</div>
@@ -52,7 +48,7 @@
     <!-- Buscador + Filtro -->
     <div class="flex flex-col md:flex-row items-center mb-6 space-y-4 md:space-y-0 md:space-x-4">
       <Input v-model="searchQuery" placeholder="Buscar productos..." class="w-full md:w-1/2" />
-      <select v-model="selectedCategory" class="...">
+      <select v-model="selectedCategory" class="border border-gray-300 rounded px-3 py-2">
         <option value="">Todas las categorías</option>
         <option v-for="cat in categorias" :key="cat.id" :value="cat.nombre">
           {{ cat.nombre }}
@@ -68,14 +64,27 @@
 
     <!-- Listado de productos -->
     <div class="space-y-4" v-if="productos.length > 0">
-      <ProductCard v-for="producto in productosFiltrados" :key="producto.id" :producto="producto"
-        @eliminar="eliminarProducto" />
+      <ProductCard
+        v-for="producto in productosFiltrados"
+        :key="producto.id"
+        :producto="producto"
+        @eliminar="eliminarProducto"
+        @editar="editarProducto"
+      />
     </div>
 
     <div v-else-if="!loading" class="text-gray-600">No hay productos para mostrar.</div>
 
     <!-- Modal -->
-   <ProductModal :show="showModal" @close="showModal = false" @producto-agregado="agregarProducto" :categorias="categorias" />
+    <ProductModal
+    :show="showModal"
+    @close="() => { showModal = false; productoAEditar = null }"
+    @producto-agregado="agregarProducto"
+    @producto-editado="actualizarProducto"
+    :productoEditar="productoAEditar"
+    :categorias="categorias"
+    />
+
   </div>
 </template>
 
@@ -90,16 +99,20 @@ import { router } from '@inertiajs/vue3'
 import Swal from 'sweetalert2'
 import { usePage } from '@inertiajs/vue3'
 
-
 const page = usePage()
 const showModal = ref(false)
+const productoAEditar = ref(null)
 const searchQuery = ref('')
 const selectedCategory = ref('')
-
-
-
 const loading = ref(false)
 const error = ref(null)
+const productos = ref(page.props?.value?.productos ?? [])
+const categorias = ref(page.props.categorias || [])
+const porVencer = ref(page.props?.por_vencer ?? 0)
+
+onMounted(() => {
+  cargarProductos()
+})
 
 async function cargarProductos() {
   loading.value = true
@@ -115,13 +128,6 @@ async function cargarProductos() {
   }
 }
 
-onMounted(() => {
-  cargarProductos()
-})
-
-const productos = ref((page.props?.value?.productos ?? []))
-const categorias = ref(page.props.categorias || [])
-
 const productosFiltrados = computed(() => {
   return productos.value.filter(p => {
     const matchNombre = p.nombre.toLowerCase().includes(searchQuery.value.toLowerCase())
@@ -130,23 +136,14 @@ const productosFiltrados = computed(() => {
   })
 })
 
-const porVencer = ref(page.props?.por_vencer ?? 0)
-
-const actualizarContadores = async () => {
-  const res = await fetch('/api/productos')
-  if (res.ok) {
-    const data = await res.json()
-    productos.value = data
-
-  }
-}
-
-// ✔ Contar productos con bajo stock (menos de 5 unidades)
 const totalStockBajo = computed(() => {
   return productos.value.filter(p => p.existencia_inicial !== null && p.existencia_inicial < 5).length
 })
 
-
+const categoriasUnicas = computed(() => {
+  const set = new Set(productos.value.map(p => p.categoria).filter(Boolean))
+  return [...set]
+})
 
 const eliminarProducto = (id) => {
   Swal.fire({
@@ -179,13 +176,32 @@ const agregarProducto = (nuevoProducto) => {
   actualizarContadores()
 }
 
-const irADashboard = () => {
-  router.visit('/dashboard') // Ajusta esta ruta si tu dashboard tiene otro path
+const actualizarProducto = (productoActualizado) => {
+  const index = productos.value.findIndex(p => p.id === productoActualizado.id)
+  if (index !== -1) {
+    productos.value[index] = productoActualizado
+  }
 }
 
-// ✔ Categorías únicas
-const categoriasUnicas = computed(() => {
-  const set = new Set(productos.value.map(p => p.categoria).filter(Boolean))
-  return [...set]
-})
+const irADashboard = () => {
+  router.visit('/dashboard')
+}
+
+const actualizarContadores = async () => {
+  const res = await fetch('/api/productos')
+  if (res.ok) {
+    const data = await res.json()
+    productos.value = data
+  }
+}
+
+const editarProducto = (producto) => {
+  productoAEditar.value = { ...producto }
+  showModal.value = true
+}
+
+const abrirModalAgregar = () => {
+  productoAEditar.value = null
+  showModal.value = true
+}
 </script>

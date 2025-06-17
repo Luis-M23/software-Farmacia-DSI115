@@ -78,4 +78,37 @@ class ProductoController extends Controller
     return redirect()->back();
 }
 
+public function update(Request $request, $id)
+{
+    $producto = Producto::findOrFail($id);
+
+    $validated = $request->validate([
+        'nombre' => 'required|string|max:255',
+        'presentacion' => 'required|string|max:255',
+        'proveedor' => 'required|string|max:255',
+        'precio_compra' => 'required|numeric',
+        'precio_venta' => 'required|numeric',
+        'existencia_inicial' => 'required|integer',
+        'fecha_vencimiento' => 'nullable|date',
+        'imagen' => 'nullable|image|max:5120',
+        'categoria_id' => 'required|exists:categorias,id',
+    ]);
+
+    if ($request->hasFile('imagen')) {
+        // Opcional: eliminar imagen anterior si existe
+        if ($producto->imagen) {
+            Storage::disk('public')->delete($producto->imagen);
+        }
+        $path = $request->file('imagen')->store('productos', 'public');
+        $validated['imagen'] = $path;
+    }
+
+    $producto->update($validated);
+
+    return response()->json([
+        'success' => true,
+        'producto' => $producto->fresh()->load('categoria'),
+    ]);
+}
+
 }

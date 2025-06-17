@@ -16,7 +16,7 @@ const mainNavItems: NavItem[] = [
     },
         {
         title: 'Productos',
-        href: 'http://127.0.0.1:8000/productos',
+        href: '/productos',
         icon: LayoutGrid,
     },
 ];

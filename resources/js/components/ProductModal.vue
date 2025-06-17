@@ -19,12 +19,15 @@
         </button>
 
         <!-- Título -->
-        <h2 class="text-2xl font-bold text-gray-800 mb-1">Agregar Nuevo Producto</h2>
-        <p class="text-gray-600 mb-6">Completa la información para registrar un nuevo producto.</p>
+        <h2 class="text-2xl font-bold text-gray-800 mb-1">
+          {{ esEdicion ? 'Editar Producto' : 'Agregar Nuevo Producto' }}
+        </h2>
+        <p class="text-gray-600 mb-6">
+          {{ esEdicion ? 'Modifica la información del producto.' : 'Completa la información para registrar un nuevo producto.' }}
+        </p>
 
         <!-- Formulario -->
         <form @submit.prevent="handleSubmit" class="grid grid-cols-1 md:grid-cols-2 gap-4" enctype="multipart/form-data">
-
           <!-- Nombre del producto -->
           <div>
             <Label for="nombre">Nombre del Producto *</Label>
@@ -36,12 +39,9 @@
           <div>
             <Label for="categoria">Categoría *</Label>
             <select v-model="form.categoria_id" id="categoria" required class="w-full border rounded h-10 px-3">
-            <option value="">Seleccione una categoría</option>
-            <option v-for="cat in categorias" :key="cat.id" :value="cat.id">
-            {{ cat.nombre }}
-          </option>
-          </select>
-
+              <option value="">Seleccione una categoría</option>
+              <option v-for="cat in categorias" :key="cat.id" :value="cat.id">{{ cat.nombre }}</option>
+            </select>
             <div v-if="form.errors.categoria" class="text-red-500 text-sm">{{ form.errors.categoria }}</div>
           </div>
 
@@ -121,7 +121,9 @@
         <!-- Botones -->
         <div class="flex justify-end space-x-4 mt-6">
           <Button variant="outline" @click="closeModal">Cancelar</Button>
-          <Button @click="handleSubmit" class="bg-green-600 hover:bg-green-700 text-white">Guardar Producto</Button>
+          <Button @click="handleSubmit" class="bg-green-600 hover:bg-green-700 text-white">
+            {{ esEdicion ? 'Actualizar Producto' : 'Guardar Producto' }}
+          </Button>
         </div>
       </div>
     </div>
@@ -129,7 +131,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -137,11 +139,12 @@ import { Label } from '@/components/ui/label'
 import { defineProps, defineEmits } from 'vue'
 import axios from 'axios'
 
-const emit = defineEmits(['close', 'producto-agregado'])
+const emit = defineEmits(['close', 'producto-agregado', 'producto-editado'])
 
 const props = defineProps({
   show: { type: Boolean, required: true },
-  categorias: { type: Array, required: true }
+  categorias: { type: Array, required: true },
+  productoEditar: { type: Object, default: null },
 })
 
 const fileInput = ref(null)
@@ -156,6 +159,24 @@ const form = useForm({
   existencia_inicial: '',
   fecha_vencimiento: '',
   imagen: null,
+})
+
+const esEdicion = computed(() => !!props.productoEditar)
+
+watch(() => props.productoEditar, (producto) => {
+  if (producto) {
+    form.nombre = producto.nombre || ''
+    form.categoria_id = producto.categoria_id || ''
+    form.presentacion = producto.presentacion || ''
+    form.proveedor = producto.proveedor || ''
+    form.precio_compra = producto.precio_compra || ''
+    form.precio_venta = producto.precio_venta || ''
+    form.existencia_inicial = producto.existencia_inicial || ''
+    form.fecha_vencimiento = producto.fecha_vencimiento || ''
+    form.imagen = null
+  } else {
+    form.reset()
+  }
 })
 
 const closeModal = () => {
@@ -187,9 +208,16 @@ const handleSubmit = async () => {
   }
 
   try {
-    const res = await axios.post('/productos', formData)
-    const producto = res.data.producto
-    emit('producto-agregado', producto)
+    let res
+    if (esEdicion.value) {
+      res = await axios.post(`/productos/${props.productoEditar.id}`, formData, {
+        headers: { 'X-HTTP-Method-Override': 'PUT' }
+      })
+      emit('producto-editado', res.data.producto)
+    } else {
+      res = await axios.post('/productos', formData)
+      emit('producto-agregado', res.data.producto)
+    }
     closeModal()
   } catch (error) {
     if (error.response?.data?.errors) {
@@ -199,24 +227,7 @@ const handleSubmit = async () => {
     }
   }
 }
-
-
-// Cargar productos desde API
-async function cargarProductos() {
-  loading.value = true
-  error.value = null
-  try {
-    const res = await fetch('/api/productos')
-    if (!res.ok) throw new Error('Error al cargar productos')
-    productos.value = await res.json()
-  } catch (e) {
-    error.value = e.message
-  } finally {
-    loading.value = false
-  }
-}
 </script>
-
 
 <style scoped>
 .fade-enter-active, .fade-leave-active {

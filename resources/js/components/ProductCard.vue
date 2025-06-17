@@ -45,9 +45,14 @@
 
     <!-- Botones acciones -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-end gap-2 mt-4 md:mt-0">
-      <Button variant="outline" class="flex items-center space-x-1">
+      <Button
+        variant="outline"
+        class="flex items-center space-x-1"
+        @click="$emit('editar', producto)"
+        >
         ✏️ <span>Editar</span>
-      </Button>
+    </Button>
+
       <Button
         variant="destructive"
         class="flex items-center space-x-1"
