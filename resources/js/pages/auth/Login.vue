@@ -1,93 +1,116 @@
-<script setup lang="ts">
-import InputError from '@/components/InputError.vue';
-import TextLink from '@/components/TextLink.vue';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import AuthBase from '@/layouts/AuthLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
-import { LoaderCircle } from 'lucide-vue-next';
-
-defineProps<{
-    status?: string;
-    canResetPassword: boolean;
-}>();
-
-const form = useForm({
-    email: '',
-    password: '',
-    remember: false,
-});
-
-const submit = () => {
-    form.post(route('login'), {
-        onFinish: () => form.reset('password'),
-    });
-};
-</script>
-
 <template>
-    <AuthBase title="Log in to your account" description="Enter your email and password below to log in">
-        <Head title="Log in" />
+  <div class="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center p-4">
+    <div class="w-full max-w-md shadow-xl border-0 bg-white p-8 rounded">
+      <div class="flex justify-center mb-6">
+        <img src="img/logo-farmacia.png" alt="Farmacias La Esperanza" width="200" height="120" class="object-contain" />
+      </div>
 
-        <div v-if="status" class="mb-4 text-center text-sm font-medium text-green-600">
-            {{ status }}
+      <h2 class="text-2xl font-bold text-gray-800 text-center mb-2">Iniciar Sesión</h2>
+      <p class="text-gray-600 text-center mb-6">Accede a tu cuenta de Farmacias La Esperanza</p>
+
+      <!-- Errores de Laravel -->
+      <div v-if="error" class="mb-4 text-red-600 font-medium text-sm text-center">
+        {{ error }}
+      </div>
+
+      <form @submit.prevent="handleSubmit" class="space-y-4">
+        <!-- Email -->
+        <div>
+          <label for="email" class="block text-gray-700 font-medium mb-1">Correo Electrónico</label>
+          <div class="relative">
+            <input
+              id="email"
+              type="email"
+              v-model="email"
+              placeholder="tu@email.com"
+              class="pl-10 h-12 w-full border border-gray-200 focus:border-green-500 focus:ring-green-500 rounded"
+              required
+            />
+          </div>
         </div>
 
-        <form @submit.prevent="submit" class="flex flex-col gap-6">
-            <div class="grid gap-6">
-                <div class="grid gap-2">
-                    <Label for="email">Email address</Label>
-                    <Input
-                        id="email"
-                        type="email"
-                        required
-                        autofocus
-                        :tabindex="1"
-                        autocomplete="email"
-                        v-model="form.email"
-                        placeholder="email@example.com"
-                    />
-                    <InputError :message="form.errors.email" />
-                </div>
+        <!-- Password -->
+        <div>
+          <label for="password" class="block text-gray-700 font-medium mb-1">Contraseña</label>
+          <div class="relative">
+            <input
+              :type="showPassword ? 'text' : 'password'"
+              id="password"
+              v-model="password"
+              placeholder="••••••••"
+              class="pl-10 pr-10 h-12 w-full border border-gray-200 focus:border-green-500 focus:ring-green-500 rounded"
+              required
+            />
+            <button
+              type="button"
+              @click="showPassword = !showPassword"
+              class="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+            >
+              {{ showPassword ? 'Ocultar' : 'Mostrar' }}
+            </button>
+          </div>
+        </div>
 
-                <div class="grid gap-2">
-                    <div class="flex items-center justify-between">
-                        <Label for="password">Password</Label>
-                        <TextLink v-if="canResetPassword" :href="route('password.request')" class="text-sm" :tabindex="5">
-                            Forgot password?
-                        </TextLink>
-                    </div>
-                    <Input
-                        id="password"
-                        type="password"
-                        required
-                        :tabindex="2"
-                        autocomplete="current-password"
-                        v-model="form.password"
-                        placeholder="Password"
-                    />
-                    <InputError :message="form.errors.password" />
-                </div>
+        <!-- Remember me -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+          </div>
+        </div>
 
-                <div class="flex items-center justify-between">
-                    <Label for="remember" class="flex items-center space-x-3">
-                        <Checkbox id="remember" v-model="form.remember" :tabindex="3" />
-                        <span>Remember me</span>
-                    </Label>
-                </div>
+        <!-- Submit -->
+        <button
+          type="submit"
+          :disabled="loading"
+          class="w-full h-12 bg-green-600 hover:bg-green-700 text-white font-medium text-base rounded flex justify-center items-center"
+        >
+          <span v-if="loading" class="animate-spin border-2 border-white border-t-transparent rounded-full w-5 h-5 mr-2"></span>
+          {{ loading ? 'Iniciando...' : 'Iniciar Sesión' }}
+        </button>
+      </form>
 
-                <Button type="submit" class="mt-4 w-full" :tabindex="4" :disabled="form.processing">
-                    <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
-                    Log in
-                </Button>
-            </div>
-
-            <div class="text-center text-sm text-muted-foreground">
-                Don't have an account?
-                <TextLink :href="route('register')" :tabindex="5">Sign up</TextLink>
-            </div>
-        </form>
-    </AuthBase>
+      <!-- Footer -->
+      <div class="text-center text-sm text-gray-600 mt-6">
+      ¿No tienes una cuenta?
+      <a href="/register" class="text-green-600 hover:text-green-700 font-medium">Regístrate aquí</a>
+      </div>
+    </div>
+  </div>
 </template>
+
+<script setup>
+import { ref } from 'vue'
+import axios from 'axios'
+
+const email = ref('')
+const password = ref('')
+const rememberMe = ref(false)
+const showPassword = ref(false)
+const loading = ref(false)
+const error = ref('')
+
+const handleSubmit = async () => {
+  loading.value = true
+  error.value = ''
+
+  try {
+    const response = await axios.post('/login', {
+      email: email.value,
+      password: password.value,
+      remember: rememberMe.value
+    })
+
+    console.log('Login OK', response)
+    window.location.href = '/dashboard'
+  } catch (err) {
+    console.error('Login ERROR', err)
+    if (err.response && err.response.status === 422) {
+      // Error de validación Laravel
+      error.value = 'Email o contraseña incorrectos.'
+    } else {
+      error.value = 'Error en el servidor. Intenta nuevamente.'
+    }
+  } finally {
+    loading.value = false
+  }
+}
+</script>
