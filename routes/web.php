@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\EmpleadoController;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -39,7 +40,11 @@ Route::delete('/productos/{id}', [ProductoController::class, 'destroy']);
 
 Route::put('/productos/{id}', [ProductoController::class, 'update']);
 
+// RUTA PARA LA GESTIÓN DE EMPLEADOS
+Route::get('/empleados', [EmpleadoController::class, 'index'])->middleware(['auth', 'verified'])->name('empleados.vista');
 
+// API para obtener empleados (datos)
+Route::get('/api/empleados', [EmpleadoController::class, 'obtenerDatos'])->name('empleados.api');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

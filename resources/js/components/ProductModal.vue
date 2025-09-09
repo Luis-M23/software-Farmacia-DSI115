@@ -1,4 +1,5 @@
 <template>
+
   <!-- BACKDROP -->
   <Transition name="fade">
     <div v-if="show" class="fixed inset-0 bg-white/70 backdrop-blur-sm z-40"></div>
