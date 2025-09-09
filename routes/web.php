@@ -46,5 +46,10 @@ Route::get('/empleados', [EmpleadoController::class, 'index'])->middleware(['aut
 // API para obtener empleados (datos)
 Route::get('/api/empleados', [EmpleadoController::class, 'obtenerDatos'])->name('empleados.api');
 
+// RUTA PARA GESTIÓN DE PRODUCTOSS
+Route::get('/productos', [ProductoController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('productos.vista');
+
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
