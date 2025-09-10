@@ -5,14 +5,17 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, LineChart,ShoppingCart,Users} from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, LineChart,ShoppingCart,Users,DollarSign} from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
     {
         title: 'Dashboard',
-        href: '/dashboard',
+        href: '#', // No queremos navegar
         icon: LineChart,
+        onClick: () => {
+            alert('Este módulo se está trabajando');
+        }
     },
     {
         title: 'Productos',
@@ -23,6 +26,14 @@ const mainNavItems: NavItem[] = [
         title: 'Empleados',
         href: '/empleados',
         icon: Users,
+    },
+    {
+        title: 'Ventas',
+        href: '#', // No queremos navegar
+        icon: DollarSign,
+        onClick: () => {
+            alert('Este módulo se está trabajando');
+        }
     },
 ];
 
