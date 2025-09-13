@@ -80,8 +80,6 @@ const props = defineProps({
   }
 })
 
-// Aquí pones el console.log para ver qué trae producto
-console.log('Producto recibido:', props.producto)
 
 // Formatear precio compra, asegurando número válido
 const precioCompraFormateado = computed(() => {

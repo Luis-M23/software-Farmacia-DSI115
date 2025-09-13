@@ -58,7 +58,7 @@ const footerNavItems: NavItem[] = [
             <SidebarMenu>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
-                        <Link :href="route('dashboard')">
+                        <Link :href="route('productos.vista')">
                             <AppLogo />
                         </Link>
                     </SidebarMenuButton>

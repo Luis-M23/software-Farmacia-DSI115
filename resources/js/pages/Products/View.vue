@@ -149,7 +149,7 @@ const productosFiltrados = computed(() => {
 })
 
 const totalStockBajo = computed(() => {
-  return productos.value.filter(p => p.existencia_inicial !== null && p.existencia_inicial < 5).length
+  return productos.value.filter(p => p.existencia_inicial !== null && p.existencia_inicial <= 10).length
 })
 
 const categoriasUnicas = computed(() => {
