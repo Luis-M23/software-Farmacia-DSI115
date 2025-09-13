@@ -45,24 +45,6 @@
                 <Label>Cargo</Label>
                 <Input v-model="form.cargo" placeholder="Ej: Vendedor" required />
               </div>
-
-              <div class="flex flex-col">
-                <Label>Usuario</Label>
-                <Input v-model="form.usuario" placeholder="Nombre de usuario" required />
-              </div>
-
-              <div class="flex flex-col">
-                <Label>Contraseña</Label>
-                <Input v-model="form.contrasena" type="password" placeholder="********" required />
-              </div>
-
-              <div class="flex flex-col">
-                <Label>Rol</Label>
-                <select v-model="form.rol" class="form-input" required>
-                  <option disabled value="">Seleccione un rol</option>
-                  <option v-for="rol in roles" :key="rol" :value="rol">{{ rol }}</option>
-                </select>
-              </div>
             </div>
 
             <!-- Acciones -->
@@ -88,6 +70,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import { useForm } from '@inertiajs/vue3'
 
 const props = defineProps({
   showModalProp: Boolean
@@ -96,22 +79,31 @@ const props = defineProps({
 const loading = ref(false)
 const error = ref('')
 
-const roles = ['Administrador', 'Vendedor', 'Cajero']
-
-const form = ref({
-  nombre: '',
-  dui: '',
-  email: '',
-  telefono: '',
-  direccion: '',
-  cargo: '',
-  usuario: '',
-  contrasena: '',
-  rol: ''
+const form = useForm({
+  nombre: null,
+  dui: null,
+  email: null,
+  telefono: null,
+  direccion: null,
+  cargo: null,
 })
 
 function submitForm() {
-  error.value = ''
+    loading.value = true
+    form.post('/empleados',{
+        onSuccess: (page) => {
+            form.reset()
+            window.location.href = '/empleados'
+        },
+        onError: (err) => {
+            console.log(err)
+        },
+        onFinish: () => {
+            loading.value = false
+        }
+    })
+
+/*  error.value = ''
   loading.value = true
 
   try {
@@ -127,7 +119,7 @@ function submitForm() {
     error.value = 'Error al guardar el empleado.'
   } finally {
     loading.value = false
-  }
+  }*/
 }
 
 function emitClose() {

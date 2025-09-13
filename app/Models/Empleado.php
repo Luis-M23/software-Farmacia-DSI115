@@ -2,17 +2,23 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Empleado extends Model
 {
-    use HasFactory;
+    public $timestamps = false;
+
+    public $table='empleados';
+
+    public $primaryKey = 'empleado_id';
 
     protected $fillable = [
         'nombre',
-        'cargo',
+        'dui',
         'email',
-        // + campos
+        'telefono',
+        'direccion',
+        'cargo'
     ];
+
 }

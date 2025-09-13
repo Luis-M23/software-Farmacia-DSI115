@@ -41,10 +41,11 @@ Route::delete('/productos/{id}', [ProductoController::class, 'destroy']);
 Route::put('/productos/{id}', [ProductoController::class, 'update']);
 
 // RUTA PARA LA GESTIÓN DE EMPLEADOS
-Route::get('/empleados', [EmpleadoController::class, 'index'])->middleware(['auth', 'verified'])->name('empleados.vista');
+Route::resource('/empleados', EmpleadoController::class)->except(['show']);
+//Route::get('/empleados', [EmpleadoController::class, 'index'])->middleware(['auth', 'verified'])->name('empleados.vista');
 
 // API para obtener empleados (datos)
-Route::get('/api/empleados', [EmpleadoController::class, 'obtenerDatos'])->name('empleados.api');
+//Route::get('/api/empleados', [EmpleadoController::class, 'obtenerDatos'])->name('empleados.api');
 
 // RUTA PARA GESTIÓN DE PRODUCTOSS
 Route::get('/productos', [ProductoController::class, 'index'])
