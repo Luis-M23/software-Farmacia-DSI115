@@ -180,6 +180,20 @@ watch(() => props.productoEditar, (producto) => {
   }
 })
 
+async function cargarProductos() {
+  loading.value = true
+  error.value = null
+  try {
+    const res = await fetch('/api/productos')
+    if (!res.ok) throw new Error('Error al cargar productos')
+    productos.value = await res.json()
+  } catch (e) {
+    error.value = e.message
+  } finally {
+    loading.value = false
+  }
+}
+
 const closeModal = () => {
   form.reset()
   form.clearErrors()
@@ -215,9 +229,11 @@ const handleSubmit = async () => {
         headers: { 'X-HTTP-Method-Override': 'PUT' }
       })
       emit('producto-editado', res.data.producto)
+      cargarProductos()
     } else {
       res = await axios.post('/productos', formData)
       emit('producto-agregado', res.data.producto)
+      cargarProductos()
     }
     closeModal()
   } catch (error) {

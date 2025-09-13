@@ -108,11 +108,23 @@ const loading = ref(false)
 const error = ref(null)
 const productos = ref(page.props?.value?.productos ?? [])
 const categorias = ref(page.props.categorias || [])
-const porVencer = ref(page.props?.por_vencer ?? 0)
+
 
 onMounted(() => {
   cargarProductos()
 })
+
+const porVencer = computed(() => {
+  const hoy = new Date()
+  return productos.value.filter(p => {
+    if (!p.fecha_vencimiento) return false
+    const fecha = new Date(p.fecha_vencimiento + 'T00:00:00')
+    // Por ejemplo, productos que vencen en <=30 días
+    const diff = (fecha - hoy) / (1000 * 60 * 60 * 24)
+    return diff <= 30
+  }).length
+})
+
 
 async function cargarProductos() {
   loading.value = true

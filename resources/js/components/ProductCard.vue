@@ -98,8 +98,8 @@ const precioVentaFormateado = computed(() => {
 // Formatear fecha de vencimiento
 const vencimientoTexto = computed(() => {
   if (!props.producto.fecha_vencimiento) return 'Sin fecha'
-  const fecha = new Date(props.producto.fecha_vencimiento)
-  return `⚠️ ${fecha.toLocaleDateString('es-SV')}`
+  const fecha = new Date(props.producto.fecha_vencimiento + 'T00:00:00')
+  return `⚠️ ${fecha.toLocaleDateString('es-SV', { timeZone: 'UTC' })}`
 })
 
 // Color según vencimiento
